@@ -1,0 +1,339 @@
+/* Scheda Server di Misurazione Premium */
+.server-info-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  background: linear-gradient(145deg, rgba(13, 20, 40, 0.78) 0%, rgba(7, 10, 20, 0.92) 100%);
+  border: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+}
+
+.server-info-card:hover {
+  border-color: rgba(0, 240, 255, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 240, 255, 0.1);
+}
+
+.server-info-card.mode-local-card {
+  border-top-color: rgba(245, 158, 11, 0.4);
+}
+
+/* =========================================
+   1. INTESTAZIONE SUPERIORE
+   ========================================= */
+.server-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.server-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.server-badge-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.12);
+}
+
+.server-info-card.mode-local-card .server-badge-icon {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.12);
+}
+
+.server-icon-symbol.wan {
+  color: var(--color-cyan);
+}
+
+.server-icon-symbol.local {
+  color: var(--color-amber);
+}
+
+.server-header-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.server-main-heading {
+  font-family: var(--font-brand);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.server-mode-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-beacon {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-beacon.beacon-wan {
+  background: var(--color-cyan);
+  box-shadow: 0 0 8px var(--color-cyan);
+  animation: beaconPulse 2s infinite ease-in-out;
+}
+
+.status-beacon.beacon-local {
+  background: var(--color-amber);
+  box-shadow: 0 0 8px var(--color-amber);
+  animation: beaconPulse 2s infinite ease-in-out;
+}
+
+.mode-status-txt {
+  font-family: var(--font-brand);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-cyan);
+}
+
+.server-info-card.mode-local-card .mode-status-txt {
+  color: var(--color-amber);
+}
+
+/* Azioni Pulsanti */
+.server-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-ping-pill,
+.btn-server-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-brand);
+  font-size: 0.71875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.btn-ping-pill:hover:not(:disabled),
+.btn-server-pill:hover {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-ping-pill:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* =========================================
+   2. SEZIONE CORPO: NOME SERVER & CHIP TRANSITO
+   ========================================= */
+.server-body-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.server-name-wrap {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.server-display-name {
+  font-family: var(--font-brand);
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* CHIP TRANSITO INTERNET REALE • SNODO UE (PREMIUM) */
+.server-transit-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.14) 0%, rgba(56, 189, 248, 0.06) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.15), inset 0 0 10px rgba(0, 240, 255, 0.05);
+  white-space: nowrap;
+  user-select: none;
+  transition: all var(--transition-fast);
+  cursor: default;
+}
+
+.server-transit-chip:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(56, 189, 248, 0.1) 100%);
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.3), inset 0 0 14px rgba(0, 240, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.server-info-card.mode-local-card .server-transit-chip {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(217, 119, 6, 0.06) 100%);
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.15);
+}
+
+.transit-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 8px var(--color-cyan);
+  animation: beaconPulse 1.8s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.server-info-card.mode-local-card .transit-live-dot {
+  background: var(--color-amber);
+  box-shadow: 0 0 8px var(--color-amber);
+}
+
+.transit-globe {
+  color: var(--color-cyan);
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.8));
+}
+
+.server-info-card.mode-local-card .transit-globe {
+  color: var(--color-amber);
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8));
+}
+
+.transit-title {
+  font-family: var(--font-brand);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+/* =========================================
+   3. BARRA INFERIORE (IP & RETE CLIENT)
+   ========================================= */
+.server-footer-network-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.network-info-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.network-shield-icon {
+  color: var(--color-green-neon);
+  flex-shrink: 0;
+}
+
+.network-tag-label {
+  font-family: var(--font-brand);
+  font-size: 0.65625rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.network-ip-display {
+  font-size: 0.78125rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.network-tier-pill {
+  font-family: var(--font-brand);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 255, 136, 0.1);
+  color: var(--color-green-neon);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+  flex-shrink: 0;
+}
+
+@keyframes beaconPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.85); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .server-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .server-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .server-body-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

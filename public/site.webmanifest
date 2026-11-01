@@ -1,0 +1,53 @@
+{
+  "name": "NetFlash — Speed Test & Network Quality",
+  "short_name": "NetFlash",
+  "description": "Speed test open-source ad alta precisione per misurare download, upload, latenza e jitter effettivi senza pubblicità.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070a14",
+  "theme_color": "#070a14",
+  "lang": "it",
+  "dir": "ltr",
+  "categories": ["utilities", "tools", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Avvia Speed Test",
+      "short_name": "Nuovo Test",
+      "description": "Avvia immediatamente un nuovo test di velocità della rete",
+      "url": "/",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

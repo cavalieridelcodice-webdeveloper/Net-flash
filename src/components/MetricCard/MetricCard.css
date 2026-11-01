@@ -1,0 +1,472 @@
+/* Contenitore con Prospettiva 3D */
+.metric-card-wrapper {
+  position: relative;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+  cursor: pointer;
+  outline: none;
+  border-radius: var(--radius-lg);
+  user-select: none;
+  -webkit-user-select: none;
+  min-height: 205px;
+}
+
+.metric-card-wrapper:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-cyan);
+}
+
+/* Flipper 3D */
+.metric-card-flipper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.2, 0.85, 0.4, 1.15), box-shadow var(--transition-smooth);
+  border-radius: var(--radius-lg);
+}
+
+.metric-card-wrapper.is-flipped .metric-card-flipper {
+  transform: rotateY(180deg);
+}
+
+/* Hover globale prima del flip */
+.metric-card-wrapper:hover .metric-card-flipper {
+  transform: translateY(-3px);
+}
+
+.metric-card-wrapper.is-flipped:hover .metric-card-flipper {
+  transform: rotateY(180deg) translateY(-3px);
+}
+
+/* Facciate delle Card */
+.metric-card-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 205px;
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-card);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+  overflow: hidden;
+}
+
+/* Card Front */
+.metric-card-front {
+  position: relative;
+  z-index: 2;
+}
+
+/* Card Back */
+.metric-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: rotateY(180deg);
+  z-index: 1;
+  background: linear-gradient(150deg, rgba(13, 20, 40, 0.96) 0%, rgba(7, 10, 20, 0.98) 100%);
+}
+
+/* Card Type Colors & Bordi */
+.metric-card-wrapper.download:hover .metric-card-face {
+  border-color: rgba(0, 240, 255, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.12);
+}
+
+.metric-card-wrapper.upload:hover .metric-card-face {
+  border-color: rgba(255, 0, 122, 0.35);
+  box-shadow: 0 8px 24px rgba(255, 0, 122, 0.12);
+}
+
+.metric-card-wrapper.ping:hover .metric-card-face {
+  border-color: rgba(0, 255, 136, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 255, 136, 0.12);
+}
+
+.metric-card-wrapper.jitter:hover .metric-card-face {
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.12);
+}
+
+/* Quando girata, evidenzia i bordi col colore del parametro */
+.metric-card-wrapper.download.is-flipped .metric-card-back {
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 8px 28px rgba(0, 240, 255, 0.18);
+}
+
+.metric-card-wrapper.upload.is-flipped .metric-card-back {
+  border-color: rgba(255, 0, 122, 0.45);
+  box-shadow: 0 8px 28px rgba(255, 0, 122, 0.18);
+}
+
+.metric-card-wrapper.ping.is-flipped .metric-card-back {
+  border-color: rgba(0, 255, 136, 0.45);
+  box-shadow: 0 8px 28px rgba(0, 255, 136, 0.18);
+}
+
+.metric-card-wrapper.jitter.is-flipped .metric-card-back {
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 8px 28px rgba(245, 158, 11, 0.18);
+}
+
+/* Card Type Specific Highlights durante il test attivo */
+.metric-card-wrapper.download.measuring-active .metric-card-front {
+  border-color: var(--color-cyan);
+  box-shadow: 0 8px 30px rgba(0, 240, 255, 0.25);
+}
+
+.metric-card-wrapper.upload.measuring-active .metric-card-front {
+  border-color: var(--color-magenta);
+  box-shadow: 0 8px 30px rgba(255, 0, 122, 0.25);
+}
+
+.metric-card-wrapper.ping.measuring-active .metric-card-front,
+.metric-card-wrapper.jitter.measuring-active .metric-card-front {
+  border-color: var(--color-green-neon);
+  box-shadow: 0 8px 30px rgba(0, 255, 136, 0.2);
+}
+
+/* Header della Card */
+.metric-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.metric-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+}
+
+.metric-card-wrapper.download .metric-icon { color: var(--color-cyan); }
+.metric-card-wrapper.upload .metric-icon { color: var(--color-magenta); }
+.metric-card-wrapper.ping .metric-icon { color: var(--color-green-neon); }
+.metric-card-wrapper.jitter .metric-icon { color: var(--color-amber); }
+
+.metric-label {
+  font-family: var(--font-brand);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Indicatore di rotazione / Info sul front */
+.metric-flip-hint {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-family: var(--font-brand);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+}
+
+.metric-card-wrapper:hover .metric-flip-hint {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hint-info-icon {
+  opacity: 0.75;
+}
+
+.live-pulse-badge {
+  margin-left: auto;
+  font-family: var(--font-brand);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--color-cyan);
+  border: 1px solid var(--color-cyan);
+  animation: liveBadgePulse 1.2s infinite ease-in-out;
+}
+
+.metric-card-wrapper.upload .live-pulse-badge {
+  background: rgba(255, 0, 122, 0.15);
+  color: var(--color-magenta);
+  border-color: var(--color-magenta);
+}
+
+/* Body della Card Front */
+.metric-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: auto;
+}
+
+.metric-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.metric-val {
+  font-size: clamp(1.85rem, 3.8vw, 2.35rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.metric-unit {
+  font-family: var(--font-brand);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.metric-quality-row {
+  display: flex;
+  align-items: center;
+}
+
+.quality-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-brand);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.quality-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+}
+
+/* Barra di avanzamento sul fondo front */
+.metric-progress-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.metric-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-cyan), var(--color-green-neon));
+  transition: width 0.15s ease-out;
+}
+
+.metric-card-wrapper.upload .metric-progress-bar {
+  background: linear-gradient(90deg, var(--color-magenta), var(--color-cyan));
+}
+
+/* Cue sottile in basso sul fronte */
+.metric-card-bottom-cue {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 10px;
+  font-size: 0.6875rem;
+  font-family: var(--font-brand);
+  font-weight: 600;
+  color: var(--text-muted);
+  opacity: 0.5;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+}
+
+.metric-card-wrapper:hover .metric-card-bottom-cue {
+  opacity: 0.9;
+  color: var(--text-secondary);
+}
+
+.cue-icon {
+  transition: transform var(--transition-fast);
+}
+
+.metric-card-wrapper:hover .cue-icon {
+  transform: rotate(-30deg);
+}
+
+/* =========================================
+   STILI DELLA FACCIATA POSTERIORE (BACK)
+   ========================================= */
+
+.back-header {
+  margin-bottom: 8px;
+}
+
+.back-icon-wrap {
+  width: 30px;
+  height: 30px;
+}
+
+.metric-label-back {
+  font-family: var(--font-brand);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.back-flip-badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.metric-card-wrapper:hover .back-flip-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: rotate(-45deg);
+}
+
+.metric-back-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: auto;
+}
+
+.metric-back-simple {
+  font-size: 0.78125rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin: 0;
+}
+
+.metric-back-practical {
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 5px 8px;
+  border-radius: 4px;
+  border-left: 2px solid var(--border-medium);
+}
+
+.metric-card-wrapper.download .metric-back-practical { border-left-color: var(--color-cyan); }
+.metric-card-wrapper.upload .metric-back-practical { border-left-color: var(--color-magenta); }
+.metric-card-wrapper.ping .metric-back-practical { border-left-color: var(--color-green-neon); }
+.metric-card-wrapper.jitter .metric-back-practical { border-left-color: var(--color-amber); }
+
+.practical-title {
+  display: block;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.practical-content {
+  color: var(--text-secondary);
+}
+
+.metric-back-rule {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65625rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.rule-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.metric-card-wrapper.download .rule-dot { background: var(--color-cyan); }
+.metric-card-wrapper.upload .rule-dot { background: var(--color-magenta); }
+.metric-card-wrapper.ping .rule-dot { background: var(--color-green-neon); }
+.metric-card-wrapper.jitter .rule-dot { background: var(--color-amber); }
+
+.metric-back-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metric-return-prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-brand);
+  font-size: 0.65625rem;
+  font-weight: 700;
+  color: var(--color-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+  transition: opacity var(--transition-fast);
+}
+
+.metric-card-wrapper.upload .metric-return-prompt { color: var(--color-magenta); }
+.metric-card-wrapper.ping .metric-return-prompt { color: var(--color-green-neon); }
+.metric-card-wrapper.jitter .metric-return-prompt { color: var(--color-amber); }
+
+.metric-card-wrapper:hover .metric-return-prompt {
+  opacity: 1;
+}
+
+.return-icon {
+  transition: transform var(--transition-fast);
+}
+
+.metric-card-wrapper:hover .return-icon {
+  transform: rotate(-45deg);
+}
+
+@keyframes liveBadgePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

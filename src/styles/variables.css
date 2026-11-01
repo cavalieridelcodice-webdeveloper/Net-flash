@@ -1,0 +1,58 @@
+:root {
+  /* Sfondi Principali & Profondità */
+  --bg-abyss: #070a14;
+  --bg-abyss-radial: radial-gradient(circle at 50% 20%, #0d152c 0%, #070a14 75%);
+  --bg-surface: rgba(14, 21, 40, 0.72);
+  --bg-surface-elevated: rgba(20, 31, 60, 0.85);
+  --bg-surface-glass: rgba(16, 24, 48, 0.45);
+  --bg-surface-active: rgba(0, 240, 255, 0.06);
+
+  /* Bordi e Riflessi Sartoriali */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glass: rgba(0, 240, 255, 0.22);
+  --border-cyan-glow: rgba(0, 240, 255, 0.45);
+  --border-magenta-glow: rgba(255, 0, 122, 0.45);
+
+  /* Accenti Brand NetFlash */
+  --color-cyan: #00f0ff;
+  --color-cyan-dim: #00c2cf;
+  --color-cyan-glow: rgba(0, 240, 255, 0.3);
+  --color-magenta: #ff007a;
+  --color-magenta-glow: rgba(255, 0, 122, 0.35);
+  --color-green: #10b981;
+  --color-green-neon: #00ff88;
+  --color-green-glow: rgba(16, 185, 129, 0.3);
+  --color-amber: #f59e0b;
+  --color-red: #ef4444;
+
+  /* Tipografia & Contrasti WCAG AA */
+  --font-brand: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Space Grotesk', 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-cyan: #00f0ff;
+  --text-magenta: #ff007a;
+
+  /* Ombre & Riflessi di Luce */
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 12px 36px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--border-subtle);
+  --shadow-card-hover: 0 16px 44px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--border-cyan-glow);
+  --glow-cyan-lg: 0 0 35px rgba(0, 240, 255, 0.3);
+  --glow-btn: 0 0 25px rgba(0, 240, 255, 0.45);
+
+  /* Curve di Animazione Fluide */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.18s ease;
+  --transition-smooth: 0.35s var(--ease-spring);
+  --transition-slow: 0.6s var(--ease-spring);
+
+  /* Raggi dei Bordi */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+}

@@ -1,0 +1,106 @@
+.test-progress-wrapper {
+  width: 100%;
+  max-width: 640px;
+  margin: 16px auto 28px;
+  padding: 12px 18px;
+  background: var(--bg-surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(12px);
+}
+
+.phases-steps-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.phase-step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-brand);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.step-indicator {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-fast);
+}
+
+.step-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--text-muted);
+}
+
+.step-label {
+  white-space: nowrap;
+}
+
+/* Active phase */
+.phase-step-item.active {
+  color: var(--color-cyan);
+}
+
+.phase-step-item.active .step-indicator {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Done phase */
+.phase-step-item.done {
+  color: var(--color-green-neon);
+}
+
+.phase-step-item.done .step-indicator {
+  background: rgba(0, 255, 136, 0.15);
+  border-color: var(--color-green-neon);
+  color: var(--color-green-neon);
+}
+
+.overall-progress-bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.overall-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-cyan) 0%, var(--color-green-neon) 50%, var(--color-magenta) 100%);
+  border-radius: var(--radius-full);
+  transition: width 0.25s ease-out;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 580px) {
+  .step-label {
+    display: none;
+  }
+}
