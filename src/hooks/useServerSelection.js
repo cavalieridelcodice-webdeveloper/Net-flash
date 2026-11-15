@@ -135,13 +135,16 @@ export function useServerSelection() {
   const [selectedServerId, setSelectedServerId] = useState(() => {
     try {
       const savedId = localStorage.getItem(SELECTED_SERVER_KEY);
-      if (savedId && DEFAULT_SERVERS.some((s) => s.id === savedId)) {
+      // Accetta solo server validi dalla lista; ignora selezioni precedenti di 'auto' o 'wan-relay'
+      const validIds = new Set(CANDIDATE_SERVERS.map((s) => s.id));
+      if (savedId && validIds.has(savedId)) {
         return savedId;
       }
     } catch {
       // fallback
     }
-    return 'auto';
+    // Default: NetFlash Cloud (Vercel Edge) — funziona su qualsiasi ISP e dispositivo
+    return 'netflash-api';
   });
 
   const [autoResolvedServer, setAutoResolvedServer] = useState(CANDIDATE_SERVERS[0]);

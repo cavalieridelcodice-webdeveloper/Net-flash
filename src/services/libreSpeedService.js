@@ -119,10 +119,10 @@ export class LibreSpeedService {
         && !this.activeServer.isVercelApi
         && this.activeServer.server.startsWith('http');
 
-      // Stream: 6 download + 4 upload garantisce throughput massimo senza saturare
-      // il worker. Con server Vercel edge (bassa latenza) si ottiene throughput pieno.
-      const dlStreams = isRemote ? 4 : 6;
-      const ulStreams = isRemote ? 3 : 4;
+      // Stream: 3 download + 2 upload — calibrati come Ookla Standard.
+      // Più stream non aumentano la velocità reale ma creano artefatti di misurazione.
+      const dlStreams = isRemote ? 3 : 3;
+      const ulStreams = isRemote ? 2 : 2;
 
       const settings = {
         test_order: 'IP_P_D_U', // IP -> Ping & Jitter -> Download -> Upload

@@ -42,29 +42,14 @@ export default function handler(req, res) {
   const ckSize = url.searchParams.get('ckSize') || '100';
   const r = url.searchParams.get('r') || Math.random();
 
-  // Prova i server GARR in ordine, fallback su random bytes locale
+  // Prova i server GARR in ordine — NESSUN fallback locale.
+  // Se tutti i server sono irraggiungibili, restituisce 503 invece di dati falsi.
   function tryServer(index) {
     if (index >= GARR_SERVERS.length) {
-      // Fallback: genera bytes pseudocasuali localmente (Vercel edge)
-      const chunkMB = Math.min(100, parseInt(ckSize, 10));
-      const totalBytes = chunkMB * 1024 * 1024;
-      const chunk = Buffer.alloc(65536, Math.random() * 255);
-      let sent = 0;
-
-      function sendChunk() {
-        if (res.writableEnded || sent >= totalBytes) {
-          if (!res.writableEnded) res.end();
-          return;
-        }
-        const toSend = Math.min(65536, totalBytes - sent);
-        const ok = res.write(chunk.slice(0, toSend));
-        sent += toSend;
-        if (ok) setImmediate(sendChunk);
-        else res.once('drain', sendChunk);
+      // Tutti i server GARR non raggiungibili: errore reale, non dati inventati
+      if (!res.headersSent) {
+        res.status(503).end('Speed test servers temporarily unavailable. Please retry.');
       }
-
-      res.status(200);
-      sendChunk();
       return;
     }
 
