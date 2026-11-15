@@ -76,6 +76,61 @@ function libreSpeedDevPlugin() {
         }
 
         // ==========================================
+        // 0. ALIAS VERCEL API → stessi endpoint WAN (compatibilità dev/prod)
+        // /api/garbage → /api/wan/garbage  |  /api/empty → /api/wan/empty  |  /api/getIP → /api/wan/getIP
+        // ==========================================
+        if (url === '/api/garbage') {
+          const searchParams = new URL(req.url, 'http://localhost').searchParams;
+          const chunks = searchParams.get('ckSize') || '100';
+          const target = `https://st-be-bo1.infra.garr.it/garbage.php?cors=true&ckSize=${chunks}&r=${Math.random()}`;
+          fetchWanStream(target, res);
+          return;
+        }
+
+        if (url === '/api/empty') {
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+          if (req.method === 'POST') {
+            req.on('data', () => {});
+            req.on('end', () => { res.statusCode = 200; res.end(''); });
+            return;
+          }
+          res.statusCode = 200;
+          res.end('');
+          return;
+        }
+
+        if (url === '/api/getIP') {
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+
+          const ipReq = https.get('https://ipwho.is/', { timeout: 4000 }, (ipRes) => {
+            let body = '';
+            ipRes.on('data', (d) => { body += d; });
+            ipRes.on('end', () => {
+              try {
+                const parsed = JSON.parse(body);
+                const publicIp = parsed.ip || 'Rete Internet';
+                const ispName = parsed.connection?.isp || parsed.connection?.org || 'Gestore Rete';
+                const city = parsed.city ? `(${parsed.city})` : '';
+                res.statusCode = 200;
+                res.end(JSON.stringify({
+                  processedString: `${publicIp} - ${ispName} ${city}`,
+                  rawIspInfo: { ip: publicIp, isp: ispName, org: parsed.connection?.org || ispName, city: parsed.city || '', country: parsed.country || '' }
+                }));
+              } catch {
+                res.statusCode = 200;
+                res.end(JSON.stringify({ processedString: 'Connessione Internet', rawIspInfo: { ip: '', isp: 'Rete Internet' } }));
+              }
+            });
+          });
+          ipReq.on('error', () => {
+            res.statusCode = 200;
+            res.end(JSON.stringify({ processedString: 'Connessione Internet', rawIspInfo: { ip: '', isp: 'Rete Internet' } }));
+          });
+          return;
+        }
+
+        // ==========================================
         // 1. ENDPOINT WAN RELAY (INTERNET REALE AD ALTO THROUGHPUT)
         // ==========================================
         if (url === '/api/wan/empty') {

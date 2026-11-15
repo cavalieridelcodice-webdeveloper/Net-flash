@@ -1,80 +1,109 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-const SERVER_STORAGE_KEY = 'netflash_server_config_v5';
-const SELECTED_SERVER_KEY = 'netflash_selected_server_id_v5';
+const SERVER_STORAGE_KEY = 'netflash_server_config_v6';
+const SELECTED_SERVER_KEY = 'netflash_selected_server_id_v6';
 
+/**
+ * Lista server candidati per l'auto-selezione.
+ * Tutti i server remoti supportano CORS con ?cors=true (LibreSpeed standard).
+ * Il server "netflash-api" usa le Vercel API Routes — nessun problema CORS, massima compatibilità.
+ */
 export const CANDIDATE_SERVERS = [
+  // ─── SERVER VERCEL API (Relay ottimizzato, nessun CORS, funziona sempre) ───
   {
-    id: 'wan-relay',
-    name: 'NetFlash WAN Relay (Italia Gigabit)',
-    location: 'Bologna GARR • Snodo Nazionale',
+    id: 'netflash-api',
+    name: 'NetFlash Cloud (Vercel Edge)',
+    location: 'Edge Network Globale • Nodo Più Vicino',
     server: '/',
-    dlURL: 'api/wan/garbage',
-    ulURL: 'api/wan/empty',
-    pingURL: 'api/wan/empty',
-    getIpURL: 'api/wan/getIP',
+    dlURL: 'api/garbage',
+    ulURL: 'api/empty',
+    pingURL: 'api/empty',
+    getIpURL: 'api/getIP',
     isLocal: false,
-    badgeText: 'Ottimizzato WAN'
+    isVercelApi: true,
+    badgeText: 'NetFlash Server',
+    priority: 1
   },
+  // ─── SERVER ITALIA ───
   {
-    id: 'librespeed-garr-bo',
-    name: 'LibreSpeed Bologna (GARR)',
-    location: 'Bologna, Italia (GARR Gigabit)',
+    id: 'garr-bologna',
+    name: 'GARR Bologna (Fibra 10G)',
+    location: 'Bologna, Italia — Rete Ricerca Nazionale',
     server: 'https://st-be-bo1.infra.garr.it/',
     dlURL: 'garbage.php',
     ulURL: 'empty.php',
     pingURL: 'empty.php',
     getIpURL: 'getIP.php',
     isLocal: false,
-    badgeText: 'Rete Ricerca Italia'
+    badgeText: 'Italia 10 Gbps',
+    priority: 2
   },
   {
-    id: 'librespeed-garr-ba',
-    name: 'LibreSpeed Bari (GARR)',
-    location: 'Bari, Italia (GARR Gigabit)',
+    id: 'garr-bari',
+    name: 'GARR Bari (Fibra 10G)',
+    location: 'Bari, Italia — Rete Ricerca Nazionale',
     server: 'https://st-be-ba1.infra.garr.it/',
     dlURL: 'garbage.php',
     ulURL: 'empty.php',
     pingURL: 'empty.php',
     getIpURL: 'getIP.php',
     isLocal: false,
-    badgeText: 'Rete Ricerca Italia'
+    badgeText: 'Italia 10 Gbps',
+    priority: 2
   },
+  // ─── SERVER EUROPA ───
   {
-    id: 'librespeed-frankfurt',
-    name: 'LibreSpeed Francoforte',
-    location: 'Francoforte, DE (Clouvider DE-CIX)',
+    id: 'clouvider-frankfurt',
+    name: 'Clouvider Francoforte (DE-CIX)',
+    location: 'Francoforte, Germania — Hub Europeo',
     server: 'https://fra.speedtest.clouvider.net/backend/',
     dlURL: 'garbage.php',
     ulURL: 'empty.php',
     pingURL: 'empty.php',
     getIpURL: 'getIP.php',
     isLocal: false,
-    badgeText: 'Hub Europeo DE'
+    badgeText: 'Europa DE',
+    priority: 3
   },
   {
-    id: 'librespeed-amsterdam',
-    name: 'LibreSpeed Amsterdam',
-    location: 'Amsterdam, NL (AMS-IX)',
+    id: 'clouvider-amsterdam',
+    name: 'Clouvider Amsterdam (AMS-IX)',
+    location: 'Amsterdam, Olanda — Hub Europeo',
     server: 'https://ams.speedtest.clouvider.net/backend/',
     dlURL: 'garbage.php',
     ulURL: 'empty.php',
     pingURL: 'empty.php',
     getIpURL: 'getIP.php',
     isLocal: false,
-    badgeText: 'Hub Europeo NL'
+    badgeText: 'Europa NL',
+    priority: 3
   },
   {
+    id: 'clouvider-london',
+    name: 'Clouvider Londra (LINX)',
+    location: 'Londra, UK — Hub Europeo',
+    server: 'https://lon.speedtest.clouvider.net/backend/',
+    dlURL: 'garbage.php',
+    ulURL: 'empty.php',
+    pingURL: 'empty.php',
+    getIpURL: 'getIP.php',
+    isLocal: false,
+    badgeText: 'Europa UK',
+    priority: 3
+  },
+  // ─── TEST LOCALE (solo per debug, non misura velocità internet) ───
+  {
     id: 'local-direct',
-    name: 'NetFlash Local Direct Engine',
-    location: 'Loopback Mac (RAM/CPU - No Internet)',
+    name: 'NetFlash Local Engine (Solo Debug)',
+    location: 'Loopback Locale — Non misura velocità internet',
     server: '/',
     dlURL: 'api/garbage',
     ulURL: 'api/empty',
     pingURL: 'api/empty',
     getIpURL: 'api/getIP',
     isLocal: true,
-    badgeText: 'Test Locale Loopback'
+    badgeText: 'Debug Locale',
+    priority: 99
   }
 ];
 
@@ -112,7 +141,7 @@ export function useServerSelection() {
     } catch {
       // fallback
     }
-    return 'auto'; // Di default selezione automatica come Ookla
+    return 'auto';
   });
 
   const [autoResolvedServer, setAutoResolvedServer] = useState(CANDIDATE_SERVERS[0]);
@@ -120,14 +149,24 @@ export function useServerSelection() {
   const [isPinging, setIsPinging] = useState(false);
   const [pingLatency, setPingLatency] = useState(null);
 
-  // Ping a un singolo server con timeout e CORS
+  /**
+   * Pinga un singolo server e restituisce la latenza in ms (o 9999 se non raggiungibile).
+   * Per server isVercelApi usa la stessa origin → nessun problema CORS garantito.
+   */
   const testSingleServerPing = useCallback(async (targetServer) => {
     const start = performance.now();
     try {
-      const base = targetServer.server.endsWith('/') ? targetServer.server : `${targetServer.server}/`;
-      const pingUrl = targetServer.pingURL.startsWith('http') ? targetServer.pingURL : `${base}${targetServer.pingURL}`;
+      let pingUrl;
+      if (targetServer.isVercelApi || targetServer.isLocal) {
+        // Server relativo: stessa origin, nessun CORS
+        pingUrl = `/${targetServer.pingURL}`;
+      } else {
+        const base = targetServer.server.endsWith('/') ? targetServer.server : `${targetServer.server}/`;
+        pingUrl = `${base}${targetServer.pingURL}`;
+      }
+
       const sep = pingUrl.includes('?') ? '&' : '?';
-      const corsParam = targetServer.server.startsWith('http') ? 'cors=true&' : '';
+      const corsParam = (!targetServer.isVercelApi && !targetServer.isLocal) ? 'cors=true&' : '';
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4000);
@@ -146,7 +185,13 @@ export function useServerSelection() {
     }
   }, []);
 
-  // Algoritmo Selezione Automatica Server Migliore (come Ookla Speedtest)
+  /**
+   * Algoritmo auto-selezione server migliore.
+   * 1. Pinga tutti i candidati in parallelo
+   * 2. Il server NetFlash Cloud (Vercel API) ha bonus priorità: -20ms artificiali
+   *    (garantisce CORS su qualsiasi ISP/dispositivo)
+   * 3. Sceglie il nodo con latenza effettiva più bassa
+   */
   const findBestServer = useCallback(async () => {
     setIsAutoSelecting(true);
     try {
@@ -155,12 +200,14 @@ export function useServerSelection() {
       const results = await Promise.all(
         pingableCandidates.map(async (candidate) => {
           const latency = await testSingleServerPing(candidate);
-          return { server: candidate, latency };
+          // Bonus per server Vercel API: sempre funziona, nessun CORS, nodo edge più vicino
+          const adjustedLatency = candidate.isVercelApi ? Math.max(1, latency - 20) : latency;
+          return { server: candidate, latency, adjustedLatency };
         })
       );
 
-      // Ordina per latenza crescente
-      results.sort((a, b) => a.latency - b.latency);
+      // Ordina per latenza aggiustata
+      results.sort((a, b) => a.adjustedLatency - b.adjustedLatency);
 
       const best = results[0];
       if (best && best.latency < 9999) {
@@ -168,10 +215,11 @@ export function useServerSelection() {
           ...best.server,
           isAutoSelected: true,
           measuredPing: best.latency,
-          name: `${best.server.name.replace(/\(.*?\)/g, '').trim()} (🎯 Miglior Server • ${best.latency} ms)`
+          name: `${best.server.name.replace(/\(.*?\)/g, '').trim()} (🎯 Auto • ${best.latency} ms)`
         });
         setPingLatency(best.latency);
       } else {
+        // Tutti irraggiungibili → usa NetFlash Cloud (sempre disponibile)
         setAutoResolvedServer(CANDIDATE_SERVERS[0]);
       }
     } catch (e) {
@@ -182,7 +230,7 @@ export function useServerSelection() {
     }
   }, [testSingleServerPing]);
 
-  // All'avvio dell'app cerca subito il miglior server in background
+  // All'avvio cerca subito il miglior server in background
   useEffect(() => {
     if (selectedServerId === 'auto') {
       findBestServer();
@@ -202,7 +250,7 @@ export function useServerSelection() {
     try {
       localStorage.setItem(SELECTED_SERVER_KEY, id);
     } catch (e) {
-      console.warn('Errore salvataggio server selezionato:', e);
+      console.warn('Errore salvataggio server:', e);
     }
   }, []);
 

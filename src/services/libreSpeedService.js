@@ -113,11 +113,20 @@ export class LibreSpeedService {
         ? this.activeServer.server
         : `${this.activeServer.server}/`;
 
-      const isRemote = !this.activeServer.isLocal && this.activeServer.server.startsWith('http');
+      // Server Vercel API (stesso dominio) → mpot:false, nessun CORS
+      // Server remoto HTTP(S) esterno → mpot:true per abilitare CORS in LibreSpeed
+      const isRemote = !this.activeServer.isLocal
+        && !this.activeServer.isVercelApi
+        && this.activeServer.server.startsWith('http');
+
+      // Stream: 6 download + 4 upload garantisce throughput massimo senza saturare
+      // il worker. Con server Vercel edge (bassa latenza) si ottiene throughput pieno.
+      const dlStreams = isRemote ? 4 : 6;
+      const ulStreams = isRemote ? 3 : 4;
 
       const settings = {
         test_order: 'IP_P_D_U', // IP -> Ping & Jitter -> Download -> Upload
-        time_dl_max: 10,
+        time_dl_max: 12,
         time_ul_max: 10,
         time_auto: true,
         count_ping: 10,
@@ -127,8 +136,8 @@ export class LibreSpeedService {
         url_ping: this.activeServer.pingURL.startsWith('http') ? this.activeServer.pingURL : `${base}${this.activeServer.pingURL}`,
         url_getIp: this.activeServer.getIpURL.startsWith('http') ? this.activeServer.getIpURL : `${base}${this.activeServer.getIpURL}`,
         getIp_ispInfo: true,
-        xhr_dlMultistream: 4,
-        xhr_ulMultistream: 3,
+        xhr_dlMultistream: dlStreams,
+        xhr_ulMultistream: ulStreams,
         garbagePhp_chunkSize: 100,
         ...customSettings
       };
