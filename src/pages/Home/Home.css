@@ -171,18 +171,30 @@
 @media (max-width: 900px) {
   .metrics-bento-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
   }
   .assistant-server-split {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 600px) {
+  .netflash-main-container {
+    padding: 18px 12px 40px;
+    gap: 20px;
+  }
+  .metrics-bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .assistant-server-split {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 340px) {
   .metrics-bento-grid {
     grid-template-columns: 1fr;
-  }
-  .netflash-main-container {
-    padding: 24px 16px 48px;
-    gap: 24px;
   }
 }

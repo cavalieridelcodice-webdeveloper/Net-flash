@@ -470,3 +470,38 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* =========================================
+   RESPONSIVE METRIC CARDS
+   ========================================= */
+@media (max-width: 600px) {
+  .metric-card-wrapper {
+    min-height: 165px;
+  }
+  .metric-card-face {
+    min-height: 165px;
+    padding: 12px 14px;
+  }
+  .metric-val {
+    font-size: 1.75rem;
+  }
+  .metric-label {
+    font-size: 0.65625rem;
+  }
+  .metric-icon-wrap {
+    width: 32px;
+    height: 32px;
+  }
+  .metric-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .quality-pill {
+    font-size: 0.6875rem;
+    padding: 2px 7px;
+  }
+  .metric-card-bottom-cue {
+    display: none;
+  }
+}
+

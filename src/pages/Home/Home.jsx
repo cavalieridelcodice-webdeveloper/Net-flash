@@ -195,7 +195,9 @@ export function Home() {
           <MascotBadge 
             status={status} 
             downloadSpeed={downloadSpeed} 
+            uploadSpeed={uploadSpeed}
             ping={ping} 
+            jitter={jitter}
           />
 
           <ServerInfo 

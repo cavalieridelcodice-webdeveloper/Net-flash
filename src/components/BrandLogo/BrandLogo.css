@@ -4,12 +4,13 @@
   gap: 12px;
   text-decoration: none;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .mascot-badge-frame {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: var(--radius-full);
   padding: 2px;
   background: linear-gradient(135deg, var(--color-cyan) 0%, var(--color-magenta) 100%);
@@ -49,7 +50,7 @@
 
 .brand-title {
   font-family: var(--font-brand);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 900;
   letter-spacing: -0.03em;
   font-style: italic;
@@ -79,12 +80,12 @@
 
 /* Compact Mode */
 .netflash-brand-logo.compact .mascot-badge-frame {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
 }
 
 .netflash-brand-logo.compact .brand-title {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
 }
 
 @keyframes lightningFlicker {
@@ -95,5 +96,24 @@
   50% {
     filter: drop-shadow(0 0 14px var(--color-cyan)) drop-shadow(0 0 4px #fff);
     transform: scale(1.06);
+  }
+}
+
+/* =========================================
+   RESPONSIVE LOGO
+   ========================================= */
+@media (max-width: 480px) {
+  .netflash-brand-logo {
+    gap: 8px;
+  }
+  .mascot-badge-frame {
+    width: 34px;
+    height: 34px;
+  }
+  .brand-title {
+    font-size: 1.15rem;
+  }
+  .brand-tagline {
+    display: none;
   }
 }
