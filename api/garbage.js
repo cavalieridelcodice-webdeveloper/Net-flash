@@ -1,24 +1,29 @@
 /**
  * NetFlash — Vercel API Route: /api/garbage
- * Relay ad alta velocità verso il server LibreSpeed italiano GARR Bologna.
- * Questo endpoint viene usato per il test di Download reale.
- * Elimina i problemi CORS poiché la richiesta parte dal server Vercel (server-side).
+ * Stream dati verso il browser per misurare la velocità di download reale.
+ *
+ * Architettura: Vercel Edge → Internet → Browser utente
+ * Il dato percorre la vera connessione internet dell'utente → misurazione reale.
+ * Prima tenta di usare GARR Italia (latenza minore per utenti italiani),
+ * poi usa dati generati localmente dall'edge Vercel più vicino come fallback.
  */
 
 import https from 'https';
+import crypto from 'crypto';
 
-// Pool HTTPS riusabile per massimizzare throughput verso GARR
+// Pool HTTPS riusabile verso GARR
 const agent = new https.Agent({
   keepAlive: true,
-  maxSockets: 32,
-  maxFreeSockets: 16,
-  timeout: 30000
+  maxSockets: 16,
+  timeout: 10000
 });
 
-// Server GARR priorità: Bologna → Bari → Fallback random bytes
+// Chunk da 256KB pre-allocato per massima efficienza
+const GARBAGE_CHUNK = crypto.randomBytes(256 * 1024);
+
 const GARR_SERVERS = [
-  { host: 'st-be-bo1.infra.garr.it', label: 'Bologna' },
-  { host: 'st-be-ba1.infra.garr.it', label: 'Bari' }
+  { host: 'st-be-bo1.infra.garr.it' },
+  { host: 'st-be-ba1.infra.garr.it' }
 ];
 
 export const config = {
@@ -26,12 +31,12 @@ export const config = {
 };
 
 export default function handler(req, res) {
-  // CORS universale — qualsiasi dominio può usare questo endpoint
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', '*');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.setHeader('Content-Type', 'application/octet-stream');
+  res.setHeader('Content-Disposition', 'attachment; filename=random.dat');
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
@@ -39,60 +44,77 @@ export default function handler(req, res) {
   }
 
   const url = new URL(req.url, `https://${req.headers.host}`);
-  const ckSize = url.searchParams.get('ckSize') || '100';
+  const ckSize = Math.max(1, Math.min(200, parseInt(url.searchParams.get('ckSize') || '100', 10)));
   const r = url.searchParams.get('r') || Math.random();
 
-  // Prova i server GARR in ordine — NESSUN fallback locale.
-  // Se tutti i server sono irraggiungibili, restituisce 503 invece di dati falsi.
-  function tryServer(index) {
-    if (index >= GARR_SERVERS.length) {
-      // Tutti i server GARR non raggiungibili: errore reale, non dati inventati
-      if (!res.headersSent) {
-        res.status(503).end('Speed test servers temporarily unavailable. Please retry.');
-      }
+  // Prova GARR (latenza più bassa per Italia), poi fallback edge locale
+  let tried = 0;
+
+  function tryGarr() {
+    if (tried >= GARR_SERVERS.length) {
+      streamLocal();
       return;
     }
-
-    const srv = GARR_SERVERS[index];
-    const path = `/garbage.php?cors=true&ckSize=${ckSize}&r=${r}`;
-
+    const srv = GARR_SERVERS[tried++];
     const extReq = https.request(
       {
         hostname: srv.host,
         port: 443,
-        path,
+        path: `/garbage.php?cors=true&ckSize=${ckSize}&r=${r}`,
         method: 'GET',
         agent,
-        timeout: 8000,
-        headers: {
-          'User-Agent': 'NetFlash-SpeedEngine/3.0',
-          'Accept': '*/*',
-          'Connection': 'keep-alive'
-        }
+        timeout: 5000,
+        headers: { 'User-Agent': 'NetFlash/3.0', 'Accept': '*/*' }
       },
       (extRes) => {
         if (extRes.statusCode !== 200) {
           extRes.resume();
-          tryServer(index + 1);
+          tryGarr();
           return;
         }
-        res.status(200);
-        // Stream diretto: nessuna bufferizzazione, massima velocità
+        // Streaming diretto GARR → browser senza buffering
         extRes.pipe(res, { end: true });
       }
     );
-
-    extReq.on('timeout', () => {
-      extReq.destroy();
-      tryServer(index + 1);
-    });
-
-    extReq.on('error', () => {
-      tryServer(index + 1);
-    });
-
+    extReq.on('timeout', () => { extReq.destroy(); tryGarr(); });
+    extReq.on('error', () => tryGarr());
     extReq.end();
   }
 
-  tryServer(0);
+  /**
+   * Fallback: genera dati casuale dall'edge Vercel.
+   * I dati viaggiano comunque: Vercel datacenter → Internet → Browser utente.
+   * La bottleneck È la connessione internet dell'utente → misurazione reale e onesta.
+   */
+  function streamLocal() {
+    const totalBytes = ckSize * 1024 * 1024;
+    let sent = 0;
+
+    res.status(200);
+
+    function sendNext() {
+      if (res.writableEnded || res.destroyed) return;
+      if (sent >= totalBytes) {
+        res.end();
+        return;
+      }
+      const remaining = totalBytes - sent;
+      const slice = remaining < GARBAGE_CHUNK.length
+        ? GARBAGE_CHUNK.slice(0, remaining)
+        : GARBAGE_CHUNK;
+
+      const canContinue = res.write(slice);
+      sent += slice.length;
+
+      if (canContinue) {
+        setImmediate(sendNext);
+      } else {
+        res.once('drain', sendNext);
+      }
+    }
+
+    sendNext();
+  }
+
+  tryGarr();
 }

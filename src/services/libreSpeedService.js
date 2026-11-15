@@ -70,7 +70,15 @@ export class LibreSpeedService {
 
               if (isDlFail && isPingFail) {
                 if (this.onErrorCallback) {
-                  this.onErrorCallback(new Error(`Impossibile comunicare con il server "${this.activeServer.name}". Il server potrebbe essere offline o non raggiungibile. Prova a selezionare "NetFlash WAN Relay" o un altro server.`));
+                  this.onErrorCallback(new Error(`Server temporaneamente non raggiungibile. Riprova tra qualche secondo o seleziona un altro server dalle Impostazioni.`));
+                  return;
+                }
+              }
+
+              // Download fail ma upload OK: bug del server DL, mostra risultati parziali
+              if (isDlFail && !isUlFail) {
+                if (this.onErrorCallback) {
+                  this.onErrorCallback(new Error(`Test download non completato. Connessione instabile o server occupato. Riprova il test.`));
                   return;
                 }
               }
@@ -119,10 +127,11 @@ export class LibreSpeedService {
         && !this.activeServer.isVercelApi
         && this.activeServer.server.startsWith('http');
 
-      // Stream: 3 download + 2 upload — calibrati come Ookla Standard.
-      // Più stream non aumentano la velocità reale ma creano artefatti di misurazione.
-      const dlStreams = isRemote ? 3 : 3;
-      const ulStreams = isRemote ? 2 : 2;
+      // Stream adattivi per tipo di server:
+      // - Vercel API (stessa origin): 4 DL + 3 UL → throughput alto, nessun CORS overhead
+      // - Server remoti (GARR, Clouvider): 3 DL + 2 UL → stabili con mpot=true
+      const dlStreams = isRemote ? 3 : 4;
+      const ulStreams = isRemote ? 2 : 3;
 
       const settings = {
         test_order: 'IP_P_D_U', // IP -> Ping & Jitter -> Download -> Upload
